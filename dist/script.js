@@ -623,7 +623,7 @@ async function sendMessage(userMessage) {
     if (loading) loading.remove();
 
     if (data.error) {
-      addMessage('assistant', 'Sorry, there was an error processing your request. Please try again.');
+      addMessage('assistant', '죄송합니다. 요청을 처리하는 중 오류가 발생했습니다. 다시 시도해주세요.');
       console.error('OpenAI Error:', data.error);
       return;
     }
@@ -639,7 +639,7 @@ async function sendMessage(userMessage) {
   } catch (error) {
     const loading = document.getElementById('loading-indicator');
     if (loading) loading.remove();
-    addMessage('assistant', 'Sorry, I encountered an error. Please check your connection and try again.');
+    addMessage('assistant', '죄송합니다. 오류가 발생했습니다. 인터넷 연결을 확인하고 다시 시도해주세요.');
     console.error('Chat error:', error);
   }
 }
@@ -665,13 +665,6 @@ document.getElementById('chat-input').addEventListener('keypress', (e) => {
   }
 });
 
-// Update current destination context when showing location info
-const originalShowLocationInfo = showLocationInfo;
-showLocationInfo = function(location) {
-  currentDestination = location;
-  originalShowLocationInfo(location);
-};
-
 // ========== END AI CHATBOT ==========
 
 // dat.gui
@@ -690,8 +683,8 @@ var cameraControls = new function () {
 
 var surfaceControls = new function () {
   this.rotation = 0;
-  this.bumpScale = 0.05;
-  this.shininess = 10;
+  this.bumpScale = 0.12; // Updated to match earth settings
+  this.shininess = 25;   // Updated to match earth settings
 }();
 
 var markersControls = new function () {
@@ -703,13 +696,13 @@ var markersControls = new function () {
 }();
 
 var atmosphereControls = new function () {
-  this.opacity = 0.8;
+  this.opacity = 0.5; // Updated to match earth settings
 }();
 
 var atmosphericGlowControls = new function () {
-  this.intensity = 0.7;
-  this.fade = 7;
-  this.color = 0x93cfef;
+  this.intensity = 0.3; // Updated to match earth settings
+  this.fade = 10;       // Updated to match earth settings
+  this.color = 0x6ba3d0; // Updated to match earth settings
 }();
 
 // dat.gui controls
@@ -1423,6 +1416,9 @@ function animateTravelPath() {
 function showLocationInfo(location) {
   if (!location) return;
 
+  // Update current destination for chatbot context
+  currentDestination = location;
+
   let highlightsList = location.highlights ?
     location.highlights.map(h => `<li style="margin: 10px 0; font-weight: 300; color: #bbb; position: relative; padding-left: 0;"><span style="color: #00d4ff; margin-right: 8px;">·</span>${h}</li>`).join('') : '';
 
@@ -1739,18 +1735,21 @@ window.addEventListener('click', (event) => {
   }
 });
 
-// Hover event - change cursor when hovering over markers
+// Hover event - change cursor when hovering over markers (throttled for performance)
+let hoverCheckQueued = false;
 window.addEventListener('mousemove', (event) => {
   mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
   mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-  raycaster.setFromCamera(mouse, camera);
-  let intersects = raycaster.intersectObjects(travelMarkers, true);
+  if (!hoverCheckQueued) {
+    hoverCheckQueued = true;
+    requestAnimationFrame(() => {
+      raycaster.setFromCamera(mouse, camera);
+      let intersects = raycaster.intersectObjects(travelMarkers, true);
 
-  if (intersects.length > 0) {
-    document.body.style.cursor = 'pointer';
-  } else {
-    document.body.style.cursor = 'default';
+      document.body.style.cursor = intersects.length > 0 ? 'pointer' : 'default';
+      hoverCheckQueued = false;
+    });
   }
 });
 
