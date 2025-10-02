@@ -12,6 +12,10 @@
       "destination": "/api/$1"
     },
     {
+      "source": "/",
+      "destination": "/dist/index.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/dist/$1"
     }
