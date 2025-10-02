@@ -181,12 +181,12 @@ let earth = createPlanet({
 // Marker Proto
 let markerProto = {
   latLongToVector3: function latLongToVector3(latitude, longitude, radius, height) {
-    var phi = latitude * Math.PI / 180;
-    var theta = (longitude - 180) * Math.PI / 180;
+    var phi = (90 - latitude) * Math.PI / 180;
+    var theta = longitude * Math.PI / 180;
 
-    var x = -(radius + height) * Math.cos(phi) * Math.cos(theta);
-    var y = (radius + height) * Math.sin(phi);
-    var z = (radius + height) * Math.cos(phi) * Math.sin(theta);
+    var x = (radius + height) * Math.sin(phi) * Math.cos(theta);
+    var y = (radius + height) * Math.cos(phi);
+    var z = (radius + height) * Math.sin(phi) * Math.sin(theta);
 
     return new THREE.Vector3(x, y, z);
   },
